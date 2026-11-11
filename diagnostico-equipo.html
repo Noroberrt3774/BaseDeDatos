@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Diagnóstico de Equipo Tecnológico — Universidad de Colima</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #003865;
+    --blue-light: #004d8a;
+    --blue-dark: #002544;
+    --gold: #F5A800;
+    --gold-light: #ffc13d;
+    --gold-dark: #c98a00;
+    --white: #FFFFFF;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+    --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --transition: 0.2s ease;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-800);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  input, select, textarea, button { font-family: inherit; }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  @keyframes badgePop { 0% { transform: scale(0.8); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+
+  /* ===== UTILITIES ===== */
+  .hidden { display: none !important; }
+  .text-center { text-align: center; }
+  .text-sm { font-size: 0.875rem; }
+  .text-xs { font-size: 0.75rem; }
+  .text-lg { font-size: 1.125rem; }
+  .text-xl { font-size: 1.25rem; }
+  .text-2xl { font-size: 1.5rem; }
+  .text-3xl { font-size: 1.875rem; }
+  .font-bold { font-weight: 700; }
+  .font-semibold { font-weight: 600; }
+  .font-medium { font-weight: 500; }
+  .text-blue { color: var(--blue); }
+  .text-gold { color: var(--gold-dark); }
+  .text-gray { color: var(--gray-500); }
+  .text-white { color: var(--white); }
+  .mt-1 { margin-top: 0.25rem; }
+  .mt-2 { margin-top: 0.5rem; }
+  .mt-4 { margin-top: 1rem; }
+  .mt-6 { margin-top: 1.5rem; }
+  .mb-2 { margin-bottom: 0.5rem; }
+  .mb-4 { margin-bottom: 1rem; }
+  .gap-2 { gap: 0.5rem; }
+  .gap-4 { gap: 1rem; }
+  .flex { display: flex; }
+  .flex-col { flex-direction: column; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .justify-center { justify-content: center; }
+  .flex-wrap { flex-wrap: wrap; }
+  .w-full { width: 100%; }
+  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+    padding: 0.6rem 1.25rem; border-radius: var(--radius); border: none;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    transition: all var(--transition); text-decoration: none;
+    white-space: nowrap; position: relative; overflow: hidden;
+  }
+  .btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(255,255,255,0); transition: background var(--transition);
+  }
+  .btn:hover::after { background: rgba(255,255,255,0.1); }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--blue); color: var(--white); box-shadow: var(--shadow); }
+  .btn-primary:hover { background: var(--blue-light); box-shadow: var(--shadow-md); }
+  .btn-gold { background: var(--gold); color: var(--blue-dark); box-shadow: var(--shadow); }
+  .btn-gold:hover { background: var(--gold-light); box-shadow: var(--shadow-md); }
+  .btn-outline { background: transparent; border: 2px solid var(--blue); color: var(--blue); }
+  .btn-outline:hover { background: var(--blue); color: var(--white); }
+  .btn-ghost { background: transparent; color: var(--gray-600); }
+  .btn-ghost:hover { background: var(--gray-100); color: var(--gray-800); }
+  .btn-danger { background: var(--red); color: var(--white); }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.8rem; }
+  .btn-lg { padding: 0.85rem 2rem; font-size: 1rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ===== FORMS ===== */
+  .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+  .form-label { font-size: 0.875rem; font-weight: 600; color: var(--gray-700); }
+  .form-label .required { color: var(--red); margin-left: 2px; }
+  .form-control {
+    width: 100%; padding: 0.65rem 0.9rem;
+    border: 2px solid var(--gray-200); border-radius: var(--radius);
+    font-size: 0.9rem; color: var(--gray-800); background: var(--white);
+    transition: border-color var(--transition), box-shadow var(--transition);
+    outline: none;
+  }
+  .form-control:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,56,101,0.12); }
+  .form-control::placeholder { color: var(--gray-400); }
+  .form-control:disabled { background: var(--gray-100); color: var(--gray-500); cursor: not-allowed; }
+  textarea.form-control { resize: vertical; min-height: 90px; }
+  .form-error { font-size: 0.8rem; color: var(--red); display: flex; align-items: center; gap: 0.25rem; }
+  .form-hint { font-size: 0.8rem; color: var(--gray-500); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--white); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); padding: 1.5rem;
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+  .card:hover { box-shadow: var(--shadow-md); }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.2rem 0.65rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em;
+    animation: badgePop 0.3s ease;
+  }
+  .badge::before { content: '●'; font-size: 0.6rem; }
+  .badge-pending { background: var(--gray-200); color: var(--gray-700); }
+  .badge-review  { background: #dbeafe; color: #1e40af; }
+  .badge-done    { background: var(--green-light); color: #15803d; }
+  .badge-accepted{ background: #22c55e; color: #fff; }
+
+  /* ===== TABLES ===== */
+  .table-wrapper { overflow-x: auto; border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; background: var(--white); }
+  thead th {
+    background: var(--blue); color: var(--white);
+    padding: 0.9rem 1rem; text-align: left;
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  thead th:first-child { border-radius: var(--radius-lg) 0 0 0; }
+  thead th:last-child { border-radius: 0 var(--radius-lg) 0 0; }
+  tbody tr {
+    border-bottom: 1px solid var(--gray-100);
+    transition: background var(--transition);
+    cursor: pointer;
+  }
+  tbody tr:hover { background: #f0f5ff; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody td { padding: 0.85rem 1rem; font-size: 0.875rem; color: var(--gray-700); vertical-align: middle; }
+  .table-empty { text-align: center; padding: 3rem 1rem; color: var(--gray-400); }
+
+  /* ===== HEADER ===== */
+  .app-header {
+    background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 60%, var(--blue-light) 100%);
+    color: var(--white);
+    padding: 0 1.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-brand { display: flex; align-items: center; gap: 0.75rem; }
+  .header-logo {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--gold); display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 0.85rem; color: var(--blue-dark); letter-spacing: -1px;
+    flex-shrink: 0; animation: float 4s ease-in-out infinite;
+  }
+  .header-title { font-size: 0.95rem; font-weight: 700; line-height: 1.2; }
+  .header-subtitle { font-size: 0.7rem; opacity: 0.8; font-weight: 400; }
+  .header-user { display: flex; align-items: center; gap: 0.75rem; }
+  .header-user-info { text-align: right; }
+  .header-user-name { font-size: 0.875rem; font-weight: 600; }
+  .header-user-role { font-size: 0.7rem; opacity: 0.7; }
+  .user-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--gold); display: flex; align-items: center; justify-content: center;
+    color: var(--blue-dark); font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+  }
+
+  /* ===== LANDING / AUTH ===== */
+  #view-auth {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 50%, #005599 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+    position: relative; overflow: hidden;
+  }
+  #view-auth::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .auth-container {
+    width: 100%; max-width: 440px;
+    animation: fadeInScale 0.5s ease;
+    position: relative; z-index: 1;
+  }
+  .auth-hero { text-align: center; margin-bottom: 2rem; }
+  .auth-logo {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.25rem;
+    font-weight: 900; font-size: 1.5rem; color: var(--blue-dark);
+    box-shadow: 0 8px 32px rgba(245,168,0,0.4);
+    animation: float 4s ease-in-out infinite;
+  }
+  .auth-hero h1 { color: var(--white); font-size: 1.4rem; font-weight: 800; line-height: 1.3; margin-bottom: 0.4rem; }
+  .auth-hero p { color: rgba(255,255,255,0.75); font-size: 0.85rem; }
+  .auth-card {
+    background: var(--white); border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl); overflow: hidden;
+  }
+  .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; }
+  .auth-tab {
+    padding: 1rem; text-align: center; font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; border: none; background: var(--gray-100); color: var(--gray-500);
+    transition: all var(--transition); border-bottom: 3px solid transparent;
+  }
+  .auth-tab.active { background: var(--white); color: var(--blue); border-bottom-color: var(--gold); }
+  .auth-form { padding: 1.75rem; display: flex; flex-direction: column; gap: 1rem; }
+  .auth-divider { display: flex; align-items: center; gap: 0.75rem; color: var(--gray-400); font-size: 0.8rem; }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+  .role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .role-btn {
+    padding: 0.75rem; border: 2px solid var(--gray-200); border-radius: var(--radius);
+    cursor: pointer; text-align: center; transition: all var(--transition);
+    background: var(--white); color: var(--gray-600);
+  }
+  .role-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .role-btn.selected { border-color: var(--blue); background: #f0f5ff; color: var(--blue); }
+  .role-btn .role-icon { font-size: 1.5rem; display: block; margin-bottom: 0.25rem; }
+  .role-btn .role-label { font-size: 0.8rem; font-weight: 600; }
+
+  /* ===== DASHBOARD LAYOUTS ===== */
+  #view-user, #view-admin { animation: fadeIn 0.4s ease; }
+  .dashboard-main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+  @media (max-width: 768px) { .dashboard-main { padding: 1rem; } }
+
+  /* ===== STATS GRID ===== */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
+  .stat-card {
+    background: var(--white); border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+    box-shadow: var(--shadow); transition: all var(--transition);
+    border-left: 4px solid transparent; cursor: default;
+  }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .stat-card.blue { border-left-color: var(--blue); }
+  .stat-card.gold { border-left-color: var(--gold); }
+  .stat-card.amber { border-left-color: var(--amber); }
+  .stat-card.green { border-left-color: var(--green); }
+  .stat-icon { font-size: 2rem; opacity: 0.85; }
+  .stat-info {}
+  .stat-value { font-size: 2rem; font-weight: 800; color: var(--blue-dark); line-height: 1; }
+  .stat-label { font-size: 0.75rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
+
+  /* ===== FILTER BAR ===== */
+  .filter-bar {
+    background: var(--white); border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+    box-shadow: var(--shadow); display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end;
+  }
+  .filter-bar .form-group { flex: 1; min-width: 140px; }
+  .filter-bar .form-label { font-size: 0.75rem; }
+  .filter-bar .form-control { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
+  .filter-actions { display: flex; gap: 0.5rem; align-items: flex-end; }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
+  .section-title { font-size: 1.1rem; font-weight: 700; color: var(--blue-dark); display: flex; align-items: center; gap: 0.5rem; }
+  .section-title .icon { font-size: 1.2rem; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal {
+    background: var(--white); border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl); width: 100%; max-width: 680px;
+    max-height: 92vh; overflow-y: auto; display: flex; flex-direction: column;
+    animation: fadeInScale 0.3s ease;
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-200);
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+    color: var(--white); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .modal-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+  .modal-close { background: rgba(255,255,255,0.2); border: none; color: var(--white); cursor: pointer; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: background var(--transition); }
+  .modal-close:hover { background: rgba(255,255,255,0.35); }
+  .modal-body { padding: 1.5rem; flex: 1; }
+  .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--gray-200); display: flex; gap: 0.75rem; justify-content: flex-end; flex-wrap: wrap; }
+
+  /* ===== DETAIL VIEW ===== */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 540px) { .detail-grid { grid-template-columns: 1fr; } }
+  .detail-item { }
+  .detail-label { font-size: 0.75rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+  .detail-value { font-size: 0.9rem; color: var(--gray-800); font-weight: 500; }
+  .detail-section { margin-top: 1.25rem; }
+  .detail-section-title { font-size: 0.85rem; font-weight: 700; color: var(--blue); border-bottom: 2px solid var(--gold); padding-bottom: 0.35rem; margin-bottom: 0.85rem; }
+  .folio-badge {
+    display: inline-block; background: var(--blue); color: var(--white);
+    padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.05em; margin-bottom: 1rem;
+  }
+
+  /* ===== TOAST ===== */
+  #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toast {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.85rem 1.25rem; border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg); min-width: 280px; max-width: 380px;
+    animation: slideInRight 0.3s ease;
+    font-size: 0.875rem; font-weight: 500; color: var(--white);
+  }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+  .toast.info { background: var(--blue); }
+  .toast.warning { background: var(--amber); }
+  .toast-icon { font-size: 1.1rem; }
+  .toast.fade-out { opacity: 0; transition: opacity 0.3s ease; }
+
+  /* ===== PRINT SHEET ===== */
+  #view-print {
+    background: var(--white); min-height: 100vh;
+    display: none; padding: 2rem;
+  }
+  .print-sheet { max-width: 800px; margin: 0 auto; }
+  .print-header { display: flex; align-items: center; gap: 1.5rem; border-bottom: 3px solid var(--blue); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+  .print-logo { width: 70px; height: 70px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 900; font-size: 1.1rem; flex-shrink: 0; }
+  .print-header-info {}
+  .print-header-info h2 { color: var(--blue); font-size: 1.2rem; font-weight: 800; }
+  .print-header-info p { color: var(--gray-600); font-size: 0.85rem; }
+  .print-title { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--blue-dark); letter-spacing: 0.03em; text-transform: uppercase; padding: 0.75rem; background: var(--gray-100); border-radius: var(--radius); margin-bottom: 1.5rem; }
+  .print-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 2rem; margin-bottom: 1.5rem; }
+  .print-field { border-bottom: 1px solid var(--gray-300); padding-bottom: 0.35rem; }
+  .print-field-label { font-size: 0.72rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .print-field-value { font-size: 0.9rem; color: var(--gray-900); font-weight: 500; min-height: 1.4rem; }
+  .print-diagnostico { margin-bottom: 2rem; }
+  .print-diagnostico-label { font-size: 0.85rem; font-weight: 700; color: var(--blue-dark); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .print-diagnostico-box { border: 1px solid var(--gray-300); border-radius: var(--radius); padding: 1rem; min-height: 120px; font-size: 0.9rem; color: var(--gray-800); line-height: 1.6; white-space: pre-wrap; }
+  .print-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+  .print-sig { border-top: 1px solid var(--gray-700); padding-top: 0.5rem; }
+  .print-sig-name { font-size: 0.8rem; font-weight: 600; color: var(--gray-800); }
+  .print-sig-role { font-size: 0.72rem; color: var(--gray-500); line-height: 1.4; }
+  .print-sig-space { height: 55px; }
+  .print-actions { display: flex; gap: 1rem; justify-content: center; padding: 1.5rem; border-top: 1px solid var(--gray-200); margin-top: 1rem; }
+
+  /* ===== WELCOME BANNER ===== */
+  .welcome-banner {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+    color: var(--white); border-radius: var(--radius-lg); padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; animation: fadeIn 0.5s ease;
+  }
+  .welcome-text h2 { font-size: 1.3rem; font-weight: 800; }
+  .welcome-text p { font-size: 0.85rem; opacity: 0.85; margin-top: 0.25rem; }
+  .welcome-gold { color: var(--gold); }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state { text-align: center; padding: 4rem 2rem; }
+  .empty-state .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.4; }
+  .empty-state h3 { font-size: 1.1rem; color: var(--gray-600); font-weight: 600; margin-bottom: 0.5rem; }
+  .empty-state p { font-size: 0.875rem; color: var(--gray-400); }
+
+  /* ===== ALERT ===== */
+  .alert { padding: 0.85rem 1rem; border-radius: var(--radius); font-size: 0.875rem; display: flex; align-items: flex-start; gap: 0.65rem; margin-bottom: 1rem; }
+  .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+  .alert-success { background: var(--green-light); color: #15803d; border-left: 4px solid var(--green); }
+  .alert-error { background: var(--red-light); color: #991b1b; border-left: 4px solid var(--red); }
+  .alert-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+
+  /* ===== TABS ===== */
+  .tab-nav { display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); margin-bottom: 1.5rem; overflow-x: auto; }
+  .tab-btn { padding: 0.75rem 1.25rem; border: none; background: none; font-size: 0.875rem; font-weight: 600; color: var(--gray-500); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: all var(--transition); }
+  .tab-btn.active { color: var(--blue); border-bottom-color: var(--gold); }
+  .tab-btn:hover:not(.active) { color: var(--blue-light); }
+
+  /* ===== PROGRESS TRACKER ===== */
+  .progress-tracker { display: flex; align-items: center; gap: 0; margin-bottom: 1.5rem; }
+  .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; position: relative; }
+  .progress-step:not(:last-child)::after { content: ''; position: absolute; top: 15px; left: 50%; width: 100%; height: 2px; background: var(--gray-200); z-index: 0; }
+  .progress-step.done::after { background: var(--green); }
+  .progress-step.active::after { background: linear-gradient(to right, var(--blue), var(--gray-200)); }
+  .progress-dot { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--gray-300); background: var(--white); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; z-index: 1; position: relative; transition: all 0.3s; }
+  .progress-step.active .progress-dot { border-color: var(--blue); background: var(--blue); color: var(--white); }
+  .progress-step.done .progress-dot { border-color: var(--green); background: var(--green); color: var(--white); }
+  .progress-step-label { font-size: 0.7rem; color: var(--gray-500); text-align: center; font-weight: 600; }
+  .progress-step.active .progress-step-label { color: var(--blue); }
+  .progress-step.done .progress-step-label { color: var(--green); }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--gray-100); }
+  ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+  /* ===== FOOTER ===== */
+  .app-footer { text-align: center; padding: 1.5rem; color: var(--gray-400); font-size: 0.75rem; margin-top: 2rem; border-top: 1px solid var(--gray-200); background: var(--white); }
+
+  /* ===== PRINT MEDIA ===== */
+  @media print {
+    body > *:not(#view-print) { display: none !important; }
+    #view-print { display: block !important; padding: 0; }
+    .print-actions { display: none !important; }
+    .print-sheet { max-width: 100%; }
+    @page { margin: 2cm; size: letter; }
+    .print-signatures { page-break-inside: avoid; }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .app-header { padding: 0 1rem; }
+    .header-title { font-size: 0.8rem; }
+    .header-subtitle { display: none; }
+    .header-user-info { display: none; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .print-fields { grid-template-columns: 1fr; }
+    .print-signatures { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .auth-hero h1 { font-size: 1.2rem; }
+    .modal { max-height: 100vh; border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== AUTH VIEW ===== -->
+<div id="view-auth">
+  <div class="auth-container">
+    <div class="auth-hero">
+      <div class="auth-logo">UdeC</div>
+      <h1>Sistema de Diagnóstico de<br>Equipo Tecnológico</h1>
+      <p>Coordinación General de Tecnologías de Información</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">🔑 Iniciar sesión</button>
+        <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">📝 Registrarse</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="auth-login" class="auth-form">
+        <div id="login-error" class="alert alert-error hidden">
+          <span class="alert-icon">⚠️</span><span id="login-error-msg"></span>
+        </div>
+        <div>
+          <div class="form-label" style="margin-bottom:0.6rem;">Tipo de cuenta</div>
+          <div class="role-selector">
+            <div class="role-btn selected" id="role-user" onclick="selectRole('user')">
+              <span class="role-icon">👤</span>
+              <span class="role-label">Usuario</span>
+            </div>
+            <div class="role-btn" id="role-admin" onclick="selectRole('admin')">
+              <span class="role-icon">🛡️</span>
+              <span class="role-label">Administrador</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-email">Correo electrónico <span class="required">*</span></label>
+          <input class="form-control" type="email" id="login-email" placeholder="correo@ucol.mx" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-pass">Contraseña <span class="required">*</span></label>
+          <input class="form-control" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary btn-lg w-full" onclick="handleLogin()">Iniciar sesión →</button>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="auth-register" class="auth-form hidden">
+        <div id="reg-error" class="alert alert-error hidden">
+          <span class="alert-icon">⚠️</span><span id="reg-error-msg"></span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-name">Nombre completo <span class="required">*</span></label>
+            <input class="form-control" type="text" id="reg-name" placeholder="Tu nombre completo">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-email">Correo electrónico <span class="required">*</span></label>
+            <input class="form-control" type="email" id="reg-email" placeholder="correo@ucol.mx">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-pass">Contraseña <span class="required">*</span></label>
+          <input class="form-control" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres">
+          <span class="form-hint">Mínimo 6 caracteres</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-municipio">Municipio <span class="required">*</span></label>
+            <select class="form-control" id="reg-municipio" onchange="onMunicipioChange('reg-municipio','reg-campus')">
+              <option value="">Seleccionar...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-campus">Plantel / Dependencia <span class="required">*</span></label>
+            <select class="form-control" id="reg-campus" disabled>
+              <option value="">Selecciona municipio primero</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-gold btn-lg w-full" onclick="handleRegister()">Crear cuenta →</button>
+        <p class="text-center text-sm text-gray">¿Ya tienes cuenta? <a href="#" onclick="switchAuthTab('login')" style="color:var(--blue);font-weight:600;">Inicia sesión</a></p>
+      </div>
+    </div>
+    <p style="text-align:center;color:rgba(255,255,255,0.5);font-size:0.72rem;margin-top:1rem;">Universidad de Colima © 2026 — CGTI</p>
+  </div>
+</div>
+
+<!-- ===== USER DASHBOARD ===== -->
+<div id="view-user" class="hidden">
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-logo">UdeC</div>
+      <div>
+        <div class="header-title">Diagnóstico de Equipo</div>
+        <div class="header-subtitle">Sistema CGTI</div>
+      </div>
+    </div>
+    <div class="header-user">
+      <div class="header-user-info">
+        <div class="header-user-name" id="user-header-name">Usuario</div>
+        <div class="header-user-role" id="user-header-campus">Campus</div>
+      </div>
+      <div class="user-avatar" id="user-avatar-initials">U</div>
+      <button class="btn btn-ghost btn-sm text-white" onclick="logout()" title="Cerrar sesión">⬅ Salir</button>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2>Bienvenido, <span class="welcome-gold" id="user-welcome-name">Usuario</span> 👋</h2>
+        <p>Gestiona tus solicitudes de diagnóstico de equipo tecnológico desde aquí.</p>
+      </div>
+      <button class="btn btn-gold" onclick="openNewRequestModal()">➕ Nueva Solicitud</button>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title"><span class="icon">📋</span> Mis Solicitudes</div>
+      <span id="user-req-count" class="text-sm text-gray"></span>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="user-requests-table">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Tipo de equipo</th>
+            <th>Marca / Modelo</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="user-requests-tbody">
+          <tr><td colspan="6" class="table-empty">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <footer class="app-footer">Universidad de Colima — Coordinación General de Tecnologías de Información — Sistema de Diagnóstico de Equipo Tecnológico</footer>
+</div>
+
+<!-- ===== ADMIN DASHBOARD ===== -->
+<div id="view-admin" class="hidden">
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-logo">UdeC</div>
+      <div>
+        <div class="header-title">Panel de Administración — CGTI</div>
+        <div class="header-subtitle">Coordinación General de Tecnologías de Información</div>
+      </div>
+    </div>
+    <div class="header-user">
+      <div class="header-user-info">
+        <div class="header-user-name">Administrador CGTI</div>
+        <div class="header-user-role">admin@ucol.mx</div>
+      </div>
+      <div class="user-avatar">🛡️</div>
+      <button class="btn btn-ghost btn-sm text-white" onclick="logout()">⬅ Salir</button>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <!-- Stats -->
+    <div class="stats-grid" id="admin-stats"></div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="form-group">
+        <label class="form-label">Municipio</label>
+        <select class="form-control" id="filter-municipio" onchange="applyFilters()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Plantel</label>
+        <select class="form-control" id="filter-campus" onchange="applyFilters()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estado</label>
+        <select class="form-control" id="filter-status" onchange="applyFilters()">
+          <option value="">Todos</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="En revisión">En revisión</option>
+          <option value="Diagnóstico listo">Diagnóstico listo</option>
+          <option value="Aceptada">Aceptada</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Desde</label>
+        <input class="form-control" type="date" id="filter-from" onchange="applyFilters()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasta</label>
+        <input class="form-control" type="date" id="filter-to" onchange="applyFilters()">
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-ghost btn-sm" onclick="clearFilters()">✕ Limpiar</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="section-header">
+      <div class="section-title"><span class="icon">📊</span> Todas las Solicitudes</div>
+      <span id="admin-req-count" class="text-sm text-gray"></span>
+    </div>
+    <div class="table-wrapper">
+      <table id="admin-requests-table">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Solicitante</th>
+            <th>Municipio</th>
+            <th>Plantel</th>
+            <th>Tipo de equipo</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="admin-requests-tbody">
+          <tr><td colspan="8" class="table-empty">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <footer class="app-footer">Universidad de Colima — Coordinación General de Tecnologías de Información — Sistema de Diagnóstico de Equipo Tecnológico</footer>
+</div>
+
+<!-- ===== PRINT VIEW ===== -->
+<div id="view-print">
+  <div class="print-sheet" id="print-content">
+    <div class="print-header">
+      <div class="print-logo">UdeC</div>
+      <div class="print-header-info">
+        <h2>UNIVERSIDAD DE COLIMA</h2>
+        <p>Coordinación General de Tecnologías de Información</p>
+        <p>Dirección General de Servicios Telemáticos</p>
+      </div>
+    </div>
+    <div class="print-title">Diagnóstico de Equipo Tecnológico</div>
+    <div class="print-fields" id="print-fields"></div>
+    <div class="print-diagnostico">
+      <div class="print-diagnostico-label">Diagnóstico:</div>
+      <div class="print-diagnostico-box" id="print-diagnostico-box"></div>
+    </div>
+    <!-- Firmas dinámicas (solicitante + especialista + sello) -->
+    <div id="print-firmas" style="margin-top:2rem;"></div>
+  </div>
+  <div class="print-actions">
+    <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="btn btn-ghost" onclick="closePrintView()">← Volver</button>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+<!-- New Request Modal -->
+<div id="modal-new-request" class="modal-overlay hidden" onclick="closeModalOnOverlay(event,'modal-new-request')">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-header">
+      <span class="modal-title">📋 Nueva Solicitud de Diagnóstico</span>
+      <button class="modal-close" onclick="closeModal('modal-new-request')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="nr-error" class="alert alert-error hidden">
+        <span class="alert-icon">⚠️</span><span id="nr-error-msg"></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+
+        <!-- Fila 1: Nombre + Municipio -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="nr-nombre">Nombre del solicitante <span class="required">*</span></label>
+            <input class="form-control" type="text" id="nr-nombre">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nr-municipio">Municipio <span class="required">*</span></label>
+            <select class="form-control" id="nr-municipio" onchange="nrOnMunicipioChange()">
+              <option value="">Seleccionar municipio...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila 2: Centro de trabajo full width -->
+        <div class="form-group">
+          <label class="form-label" for="nr-centro">Centro de trabajo / Plantel <span class="required">*</span></label>
+          <select class="form-control" id="nr-centro">
+            <option value="">— Primero selecciona un municipio —</option>
+          </select>
+        </div>
+
+        <!-- Fila 3: Lugar + Fecha -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="nr-lugar">Lugar <span class="required">*</span></label>
+            <input class="form-control" type="text" id="nr-lugar" placeholder="Ciudad o campus donde se entrega">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nr-fecha">Fecha <span class="required">*</span></label>
+            <input class="form-control" type="date" id="nr-fecha">
+          </div>
+        </div>
+
+        <!-- Fila 4: Categoría de equipo + Tipo específico -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="nr-categoria">Categoría <span class="required">*</span></label>
+            <select class="form-control" id="nr-categoria" onchange="nrOnCategoriaChange()">
+              <option value="">Seleccionar categoría...</option>
+              <option value="Computadoras">🖥️ Computadoras</option>
+              <option value="Redes">🌐 Redes y Comunicaciones</option>
+              <option value="Periféricos">🖨️ Periféricos</option>
+              <option value="Equipo de oficina">🗂️ Equipo de oficina</option>
+              <option value="Almacenamiento">💾 Almacenamiento</option>
+              <option value="Audio y video">📽️ Audio y video</option>
+              <option value="Otro">🔧 Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nr-tipo">Tipo de equipo <span class="required">*</span></label>
+            <select class="form-control" id="nr-tipo">
+              <option value="">— Primero selecciona categoría —</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila 5: Marca + Modelo -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="nr-marca">Marca <span class="required">*</span></label>
+            <input class="form-control" type="text" id="nr-marca" placeholder="p. ej. Dell, HP, Cisco...">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nr-modelo">Modelo <span class="required">*</span></label>
+            <input class="form-control" type="text" id="nr-modelo" placeholder="p. ej. Inspiron 15, SG300...">
+          </div>
+        </div>
+
+        <!-- Fila 6: Serie + Inventario -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="nr-serie">Número de serie</label>
+            <input class="form-control" type="text" id="nr-serie" placeholder="S/N">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nr-inventario">Número de inventario</label>
+            <input class="form-control" type="text" id="nr-inventario" placeholder="No. de inventario institucional">
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label class="form-label" for="nr-descripcion">Descripción del problema / síntomas <span class="required">*</span></label>
+          <textarea class="form-control" id="nr-descripcion" rows="3" placeholder="Describe detalladamente el problema o síntomas que presenta el equipo..."></textarea>
+        </div>
+
+        <!-- Firma del solicitante -->
+        <div class="form-group">
+          <label class="form-label">Firma del solicitante <span class="required">*</span></label>
+          <div style="border:2px dashed var(--primary);border-radius:10px;padding:6px;background:#f8faff;position:relative;">
+            <canvas id="nr-firma-canvas" width="640" height="110"
+              style="display:block;width:100%;height:110px;cursor:crosshair;touch-action:none;border-radius:6px;background:#fff;">
+            </canvas>
+            <button type="button" onclick="clearFirma()"
+              style="position:absolute;top:8px;right:8px;background:var(--gray-200);border:none;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:.8rem;color:var(--gray-600);">
+              🗑️ Limpiar
+            </button>
+            <p style="margin:4px 0 0;font-size:.75rem;color:var(--gray-500);text-align:center;">
+              Firma con el mouse o dedo sobre el recuadro blanco
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-new-request')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitNewRequest()">📤 Enviar Solicitud</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Detail Modal -->
+<div id="modal-user-detail" class="modal-overlay hidden" onclick="closeModalOnOverlay(event,'modal-user-detail')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">📄 Detalle de Solicitud</span>
+      <button class="modal-close" onclick="closeModal('modal-user-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-user-detail-body"></div>
+    <div class="modal-footer" id="modal-user-detail-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-user-detail')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Detail Modal -->
+<div id="modal-admin-detail" class="modal-overlay hidden" onclick="closeModalOnOverlay(event,'modal-admin-detail')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🔧 Gestionar Solicitud</span>
+      <button class="modal-close" onclick="closeModal('modal-admin-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-admin-detail-body"></div>
+    <div class="modal-footer" id="modal-admin-detail-footer"></div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script>
+// =====================================================================
+// DATA
+// =====================================================================
+const MUNICIPIOS_CAMPUS = {
+  "Colima": [
+    "Rectoría General",
+    "Facultad de Ingeniería Civil",
+    "Facultad de Ciencias",
+    "Facultad de Medicina",
+    "Facultad de Derecho",
+    "Facultad de Economía",
+    "Facultad de Ciencias Políticas y Sociales",
+    "Facultad de Pedagogía",
+    "Facultad de Trabajo Social",
+    "Facultad de Letras y Comunicación",
+    "Facultad de Arquitectura y Diseño",
+    "Facultad de Contabilidad y Administración",
+    "Facultad de Enfermería",
+    "Facultad de Nutrición",
+    "Facultad de Psicología",
+    "Facultad de Telemática",
+    "CGTI – Coordinación General de Tecnologías de Información",
+    "Dirección General de Servicios Telemáticos",
+    "Preparatoria No. 1",
+    "Preparatoria No. 3",
+    "Preparatoria No. 7"
+  ],
+  "Manzanillo": [
+    "Facultad de Ciencias Marinas",
+    "Facultad de Comercio Exterior",
+    "Facultad de Turismo",
+    "Preparatoria No. 2",
+    "Preparatoria No. 11"
+  ],
+  "Tecomán": [
+    "Facultad de Telemática",
+    "Facultad de Ciencias Agropecuarias",
+    "Facultad de Medicina Veterinaria y Zootecnia",
+    "Preparatoria No. 5",
+    "Centro de Estudios Tecomán"
+  ],
+  "Villa de Álvarez": [
+    "Facultad de Ingeniería Mecánica y Eléctrica",
+    "Facultad de Ciencias de la Educación",
+    "Preparatoria No. 4",
+    "Preparatoria No. 6",
+    "Centro Universitario Villa de Álvarez"
+  ],
+  "Coquimatlán": [
+    "Preparatoria No. 8",
+    "Centro Universitario Coquimatlán"
+  ],
+  "Cuauhtémoc": [
+    "Preparatoria No. 9",
+    "Centro Universitario Cuauhtémoc"
+  ],
+  "Armería": [
+    "Preparatoria No. 10",
+    "Centro Universitario Armería"
+  ],
+  "Comala": [
+    "Preparatoria No. 12",
+    "Centro Universitario Comala"
+  ],
+  "Ixtlahuacán": [
+    "Centro Universitario Ixtlahuacán"
+  ],
+  "Minatitlán": [
+    "Centro Universitario Minatitlán"
+  ]
+};
+
+// =====================================================================
+// STORAGE HELPERS
+// =====================================================================
+const getUsers = () => JSON.parse(localStorage.getItem('cgti_users') || '[]');
+const saveUsers = (u) => localStorage.setItem('cgti_users', JSON.stringify(u));
+const getRequests = () => JSON.parse(localStorage.getItem('cgti_requests') || '[]');
+const saveRequests = (r) => localStorage.setItem('cgti_requests', JSON.stringify(r));
+let currentUser = null;
+let selectedRole = 'user';
+let currentAdminRequest = null;
+let previousView = null;
+
+// =====================================================================
+// SEED DATA
+// =====================================================================
+function seedData() {
+  let users = getUsers();
+  if (!users.find(u => u.email === 'admin@ucol.mx')) {
+    users.push({ id:'admin-1', name:'Administrador CGTI', email:'admin@ucol.mx', password:'admin123', role:'admin', municipality:'Colima', campus:'CGTI – Coordinación General de TI', createdAt: new Date().toISOString() });
+    saveUsers(users);
+  }
+  let requests = getRequests();
+  if (requests.length === 0) {
+    const samples = [
+      { id:uid(), folio:'CGTI-2026-0001', userId:'seed-1', userName:'Dr. Arturo Morales Vázquez', campus:'Facultad de Ingeniería Civil', municipality:'Colima', tipoEquipo:'Laptop', marca:'Dell', modelo:'Latitude 5520', numeroSerie:'CN07XRMD3', numeroInventario:'INV-FC-0234', descripcionProblema:'La laptop no enciende. Al presionar el botón de encendido parpadea el led de batería 3 veces y se apaga. Se intentó cargar por 2 horas sin resultado.', status:'En revisión', diagnostico:'', createdAt: new Date(Date.now()-86400000*3).toISOString(), updatedAt: new Date(Date.now()-86400000*3).toISOString() },
+      { id:uid(), folio:'CGTI-2026-0002', userId:'seed-2', userName:'Mtra. Sofía Ramos Hernández', campus:'Facultad de Medicina', municipality:'Colima', tipoEquipo:'Proyector', marca:'Epson', modelo:'EB-X49', numeroSerie:'X9KM072083', numeroInventario:'INV-FM-0089', descripcionProblema:'El proyector muestra una imagen con líneas horizontales rojas y la imagen se distorsiona después de 10 minutos de uso. También presenta sobrecalentamiento.', status:'Diagnóstico listo', diagnostico:'Se detectó falla en el panel LCD del proyector. El elemento de imagen presenta píxeles muertos en la franja media horizontal causando las líneas rojas. Adicionalmente, el ventilador de enfriamiento opera a baja velocidad debido a acumulación de polvo obstruyendo las aspas, lo que genera el sobrecalentamiento. Se recomienda reemplazo del panel LCD y limpieza completa del sistema de enfriamiento. Tiempo estimado de reparación: 5-7 días hábiles.', createdAt: new Date(Date.now()-86400000*7).toISOString(), updatedAt: new Date(Date.now()-86400000*1).toISOString() },
+      { id:uid(), folio:'CGTI-2026-0003', userId:'seed-3', userName:'Lic. Carlos Estrada López', campus:'Facultad de Derecho', municipality:'Colima', tipoEquipo:'Impresora', marca:'HP', modelo:'LaserJet Pro M404dn', numeroSerie:'VNB3K49087', numeroInventario:'INV-FD-0156', descripcionProblema:'La impresora presenta atascos de papel frecuentes en el rodillo de alimentación. Además imprime con manchas negras en el margen izquierdo de cada hoja.', status:'Pendiente', diagnostico:'', createdAt: new Date(Date.now()-86400000*1).toISOString(), updatedAt: new Date(Date.now()-86400000*1).toISOString() },
+    ];
+    saveRequests(samples);
+  }
+}
+
+function uid() { return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9); }
+function nextFolio() {
+  const reqs = getRequests();
+  const num = reqs.length + 1;
+  return 'CGTI-2026-' + String(num).padStart(4,'0');
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  seedData();
+  populateMunicipioSelects();
+  document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+});
+
+function populateMunicipioSelects() {
+  const selects = ['reg-municipio', 'filter-municipio'];
+  selects.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    Object.keys(MUNICIPIOS_CAMPUS).forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m; opt.textContent = m;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function onMunicipioChange(municipioId, campusId) {
+  const mun = document.getElementById(municipioId).value;
+  const campusSel = document.getElementById(campusId);
+  campusSel.innerHTML = '';
+  campusSel.disabled = !mun;
+  if (!mun) { campusSel.innerHTML = '<option value="">Selecciona municipio primero</option>'; return; }
+  campusSel.innerHTML = '<option value="">Seleccionar plantel...</option>';
+  (MUNICIPIOS_CAMPUS[mun] || []).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    campusSel.appendChild(opt);
+  });
+}
+
+// =====================================================================
+// AUTH
+// =====================================================================
+function switchAuthTab(tab) {
+  document.getElementById('auth-login').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('auth-register').classList.toggle('hidden', tab !== 'register');
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  clearErrors();
+}
+
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('role-user').classList.toggle('selected', role === 'user');
+  document.getElementById('role-admin').classList.toggle('selected', role === 'admin');
+}
+
+function clearErrors() {
+  ['login-error','reg-error','nr-error'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  document.getElementById('login-error-msg').textContent = msg;
+  el.classList.remove('hidden');
+}
+function showRegError(msg) {
+  const el = document.getElementById('reg-error');
+  document.getElementById('reg-error-msg').textContent = msg;
+  el.classList.remove('hidden');
+}
+
+function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  clearErrors();
+
+  if (!email || !pass) { showLoginError('Por favor ingresa tu correo y contraseña.'); return; }
+
+  const users = getUsers();
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
+
+  if (!user) { showLoginError('Correo o contraseña incorrectos. Verifica tus datos.'); return; }
+  if (selectedRole === 'admin' && user.role !== 'admin') { showLoginError('Esta cuenta no tiene permisos de administrador.'); return; }
+  if (selectedRole === 'user' && user.role === 'admin') { showLoginError('Por favor selecciona "Administrador" para iniciar sesión con esta cuenta.'); return; }
+
+  currentUser = user;
+  if (user.role === 'admin') showAdminDashboard();
+  else showUserDashboard();
+}
+
+function handleRegister() {
+  clearErrors();
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const mun = document.getElementById('reg-municipio').value;
+  const campus = document.getElementById('reg-campus').value;
+
+  if (!name) { showRegError('El nombre es obligatorio.'); return; }
+  if (!email || !email.includes('@')) { showRegError('Ingresa un correo electrónico válido.'); return; }
+  if (!pass || pass.length < 6) { showRegError('La contraseña debe tener al menos 6 caracteres.'); return; }
+  if (!mun) { showRegError('Selecciona tu municipio.'); return; }
+  if (!campus) { showRegError('Selecciona tu plantel o dependencia.'); return; }
+
+  const users = getUsers();
+  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+    showRegError('Ya existe una cuenta con ese correo electrónico.'); return;
+  }
+
+  const newUser = { id: uid(), name, email, password: pass, role: 'user', municipality: mun, campus, createdAt: new Date().toISOString() };
+  users.push(newUser);
+  saveUsers(users);
+  currentUser = newUser;
+  showToast('success', '✅ Cuenta creada exitosamente. ¡Bienvenido!');
+  showUserDashboard();
+}
+
+function logout() {
+  currentUser = null;
+  showView('view-auth');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pass').value = '';
+  clearErrors();
+}
+
+// =====================================================================
+// VIEW MANAGEMENT
+// =====================================================================
+function showView(viewId) {
+  ['view-auth','view-user','view-admin','view-print'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (id === 'view-print') el.style.display = id === viewId ? 'block' : 'none';
+      else el.classList.toggle('hidden', id !== viewId);
+    }
+  });
+}
+
+function showUserDashboard() {
+  showView('view-user');
+  document.getElementById('user-header-name').textContent = currentUser.name;
+  document.getElementById('user-header-campus').textContent = currentUser.campus;
+  document.getElementById('user-welcome-name').textContent = currentUser.name.split(' ')[0];
+  document.getElementById('user-avatar-initials').textContent = currentUser.name.charAt(0).toUpperCase();
+  renderUserRequests();
+}
+
+function showAdminDashboard() {
+  showView('view-admin');
+  populateAdminFilters();
+  renderAdminStats();
+  renderAdminRequests();
+}
+
+// =====================================================================
+// USER REQUESTS
+// =====================================================================
+function renderUserRequests() {
+  const reqs = getRequests().filter(r => r.userId === currentUser.id);
+  const tbody = document.getElementById('user-requests-tbody');
+  const count = document.getElementById('user-req-count');
+  count.textContent = reqs.length + ' solicitud' + (reqs.length !== 1 ? 'es' : '');
+  if (reqs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📭</div><h3>Sin solicitudes</h3><p>Aún no has enviado ninguna solicitud de diagnóstico. ¡Haz clic en "Nueva Solicitud" para empezar!</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = reqs.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt)).map(r => `
+    <tr onclick="openUserDetail('${r.id}')">
+      <td><span style="font-weight:700;color:var(--blue);font-size:0.8rem;">${r.folio}</span></td>
+      <td>${r.tipoEquipo}</td>
+      <td><span style="font-weight:600;">${r.marca}</span> ${r.modelo}</td>
+      <td>${formatDate(r.createdAt)}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openUserDetail('${r.id}');event.stopPropagation()">Ver →</button>
+        ${r.status === 'Aceptada' ? `<button class="btn btn-gold btn-sm" title="Imprimir diagnóstico firmado" onclick="printDiagnosis('${r.id}');event.stopPropagation()">🖨️</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openUserDetail(id) {
+  const r = getRequests().find(r => r.id === id);
+  if (!r) return;
+  const body = document.getElementById('modal-user-detail-body');
+  body.innerHTML = `
+    <span class="folio-badge">${r.folio}</span>
+    <div class="flex items-center gap-2 mb-4">${statusBadge(r.status)}<span class="text-sm text-gray">Enviada el ${formatDate(r.createdAt)}</span></div>
+    ${r.status !== 'Pendiente' ? progressTracker(r.status) : ''}
+    <div class="detail-section">
+      <div class="detail-section-title">Información del Solicitante</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Solicitante</div><div class="detail-value">${r.userName}</div></div>
+        <div class="detail-item"><div class="detail-label">Centro de trabajo</div><div class="detail-value">${r.campus}</div></div>
+        <div class="detail-item"><div class="detail-label">Municipio</div><div class="detail-value">${r.municipality}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Datos del Equipo</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Tipo de equipo</div><div class="detail-value">${r.tipoEquipo}</div></div>
+        <div class="detail-item"><div class="detail-label">Marca</div><div class="detail-value">${r.marca}</div></div>
+        <div class="detail-item"><div class="detail-label">Modelo</div><div class="detail-value">${r.modelo}</div></div>
+        <div class="detail-item"><div class="detail-label">Núm. de serie</div><div class="detail-value">${r.numeroSerie || '—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Núm. de inventario</div><div class="detail-value">${r.numeroInventario || '—'}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Descripción del problema</div>
+      <p style="font-size:0.9rem;color:var(--gray-700);line-height:1.6;">${r.descripcionProblema}</p>
+    </div>
+    ${r.diagnostico ? `<div class="detail-section"><div class="detail-section-title">✅ Diagnóstico del especialista</div><div style="background:var(--green-light);border-radius:var(--radius);padding:1rem;font-size:0.9rem;color:var(--gray-800);line-height:1.6;border-left:4px solid var(--green);">${r.diagnostico}</div></div>` : ''}
+  `;
+
+  // Footer dinámico: si la solicitud fue aceptada, el usuario puede imprimir
+  const footer = document.getElementById('modal-user-detail-footer');
+  footer.innerHTML = r.status === 'Aceptada'
+    ? `<button class="btn btn-ghost" onclick="closeModal('modal-user-detail')">Cerrar</button>
+       <button class="btn btn-gold" onclick="printDiagnosis('${r.id}')">🖨️ Imprimir diagnóstico firmado</button>`
+    : `<button class="btn btn-ghost" onclick="closeModal('modal-user-detail')">Cerrar</button>`;
+
+  openModal('modal-user-detail');
+}
+
+function progressTracker(status) {
+  const steps = [
+    { label: 'Enviada' },
+    { label: 'En revisión' },
+    { label: 'Diagnóstico listo' },
+    { label: 'Aceptada' }
+  ];
+  const idx = { 'Pendiente': 0, 'En revisión': 1, 'Diagnóstico listo': 2, 'Aceptada': 3 }[status] ?? 0;
+  return `<div class="progress-tracker mb-4">` + steps.map((s, i) => {
+    const cls = (i < idx || (status === 'Aceptada' && i === 3)) ? 'done' : i === idx ? 'active' : '';
+    const dot = cls === 'done' ? '✓' : i + 1;
+    return `<div class="progress-step ${cls}"><div class="progress-dot">${dot}</div><div class="progress-step-label">${s.label}</div></div>`;
+  }).join('') + `</div>`;
+}
+
+// =====================================================================
+// TIPOS DE EQUIPO POR CATEGORÍA
+// =====================================================================
+const TIPOS_EQUIPO = {
+  "Computadoras": [
+    "PC de escritorio","Laptop / Notebook","Servidor","Tablet","All-in-One","Mac / iMac"
+  ],
+  "Redes": [
+    "Router","Switch","Access Point (AP)","Firewall","Módem","Patch Panel","Cable de red / Patchcord","Convertidor de medios"
+  ],
+  "Periféricos": [
+    "Monitor","Impresora","Escáner","Impresora multifuncional","Teclado","Mouse","Webcam","UPS / No-break"
+  ],
+  "Equipo de oficina": [
+    "Fotocopiadora","Fax","Teléfono IP","Diadema / Headset","Lector de código de barras","Reloj checador"
+  ],
+  "Almacenamiento": [
+    "Disco duro externo","Memoria USB","NAS (Almacenamiento en red)","Tarjeta SD / microSD"
+  ],
+  "Audio y video": [
+    "Proyector","Pantalla interactiva","Bocinas","Micrófono","Cámara de videoconferencia","Televisión"
+  ],
+  "Otro": ["Otro (especificar en descripción)"]
+};
+
+// =====================================================================
+// FIRMA CANVAS
+// =====================================================================
+let firmaIsDrawing = false;
+let firmaHasData = false;
+
+function initFirmaCanvas() {
+  const canvas = document.getElementById('nr-firma-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#003865';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / r.width;
+    const scaleY = canvas.height / r.height;
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * scaleX, y: (src.clientY - r.top) * scaleY };
+  }
+  function start(e) { e.preventDefault(); firmaIsDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+  function draw(e)  { e.preventDefault(); if (!firmaIsDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); firmaHasData = true; }
+  function stop()   { firmaIsDrawing = false; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stop);
+  canvas.addEventListener('mouseleave', stop);
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', draw,  {passive:false});
+  canvas.addEventListener('touchend', stop);
+}
+
+function clearFirma() {
+  const canvas = document.getElementById('nr-firma-canvas');
+  if (!canvas) return;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  firmaHasData = false;
+}
+
+function getFirmaDataURL() {
+  const canvas = document.getElementById('nr-firma-canvas');
+  return canvas ? canvas.toDataURL('image/png') : '';
+}
+
+// =====================================================================
+// NEW REQUEST – helpers
+// =====================================================================
+function nrOnMunicipioChange() {
+  const mun = document.getElementById('nr-municipio').value;
+  const campusSel = document.getElementById('nr-centro');
+  campusSel.innerHTML = '<option value="">Seleccionar plantel...</option>';
+  (MUNICIPIOS_CAMPUS[mun] || []).forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    campusSel.appendChild(o);
+  });
+}
+
+function nrOnCategoriaChange() {
+  const cat = document.getElementById('nr-categoria').value;
+  const tipoSel = document.getElementById('nr-tipo');
+  tipoSel.innerHTML = '<option value="">Seleccionar tipo...</option>';
+  (TIPOS_EQUIPO[cat] || []).forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t;
+    tipoSel.appendChild(o);
+  });
+}
+
+// =====================================================================
+// NEW REQUEST
+// =====================================================================
+function openNewRequestModal() {
+  // Poblar municipio
+  const munSel = document.getElementById('nr-municipio');
+  munSel.innerHTML = '<option value="">Seleccionar municipio...</option>';
+  Object.keys(MUNICIPIOS_CAMPUS).forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    if (m === currentUser.municipality) o.selected = true;
+    munSel.appendChild(o);
+  });
+
+  // Poblar planteles del municipio del usuario
+  const campusSel = document.getElementById('nr-centro');
+  campusSel.innerHTML = '<option value="">Seleccionar plantel...</option>';
+  (MUNICIPIOS_CAMPUS[currentUser.municipality] || []).forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    if (c === currentUser.campus) o.selected = true;
+    campusSel.appendChild(o);
+  });
+
+  // Reset categoría y tipo
+  document.getElementById('nr-categoria').value = '';
+  document.getElementById('nr-tipo').innerHTML = '<option value="">— Primero selecciona categoría —</option>';
+
+  // Hoy como fecha por defecto
+  document.getElementById('nr-fecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('nr-lugar').value = currentUser.municipality || '';
+
+  document.getElementById('nr-nombre').value = currentUser.name;
+  document.getElementById('nr-marca').value = '';
+  document.getElementById('nr-modelo').value = '';
+  document.getElementById('nr-serie').value = '';
+  document.getElementById('nr-inventario').value = '';
+  document.getElementById('nr-descripcion').value = '';
+  document.getElementById('nr-error').classList.add('hidden');
+
+  // Limpiar firma e inicializar canvas
+  clearFirma();
+  setTimeout(initFirmaCanvas, 50);
+
+  openModal('modal-new-request');
+}
+
+function submitNewRequest() {
+  const nombre     = document.getElementById('nr-nombre').value.trim();
+  const municipio  = document.getElementById('nr-municipio').value;
+  const campus     = document.getElementById('nr-centro').value;
+  const lugar      = document.getElementById('nr-lugar').value.trim();
+  const fecha      = document.getElementById('nr-fecha').value;
+  const categoria  = document.getElementById('nr-categoria').value;
+  const tipo       = document.getElementById('nr-tipo').value;
+  const marca      = document.getElementById('nr-marca').value.trim();
+  const modelo     = document.getElementById('nr-modelo').value.trim();
+  const descripcion= document.getElementById('nr-descripcion').value.trim();
+
+  document.getElementById('nr-error').classList.add('hidden');
+
+  if (!nombre)     { showNRError('El nombre del solicitante es obligatorio.'); return; }
+  if (!municipio)  { showNRError('Selecciona el municipio.'); return; }
+  if (!campus)     { showNRError('Selecciona el centro de trabajo / plantel.'); return; }
+  if (!lugar)      { showNRError('Indica el lugar de entrega.'); return; }
+  if (!fecha)      { showNRError('Selecciona la fecha.'); return; }
+  if (!categoria)  { showNRError('Selecciona la categoría del equipo.'); return; }
+  if (!tipo)       { showNRError('Selecciona el tipo de equipo.'); return; }
+  if (!marca)      { showNRError('La marca del equipo es obligatoria.'); return; }
+  if (!modelo)     { showNRError('El modelo del equipo es obligatorio.'); return; }
+  if (!descripcion){ showNRError('Describe el problema o síntomas del equipo.'); return; }
+  if (!firmaHasData){ showNRError('Por favor firma la solicitud en el recuadro de firma.'); return; }
+
+  const newReq = {
+    id: uid(), folio: nextFolio(), userId: currentUser.id,
+    userName: nombre, campus, municipality: municipio,
+    lugar, fecha,
+    categoriaEquipo: categoria, tipoEquipo: tipo, marca, modelo,
+    numeroSerie: document.getElementById('nr-serie').value.trim(),
+    numeroInventario: document.getElementById('nr-inventario').value.trim(),
+    descripcionProblema: descripcion,
+    firmaDataURL: getFirmaDataURL(),
+    status: 'Pendiente', diagnostico: '',
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+  };
+
+  const reqs = getRequests();
+  reqs.push(newReq);
+  saveRequests(reqs);
+  closeModal('modal-new-request');
+  renderUserRequests();
+  showToast('success', `✅ Solicitud ${newReq.folio} enviada exitosamente.`);
+}
+
+function showNRError(msg) {
+  document.getElementById('nr-error-msg').textContent = msg;
+  document.getElementById('nr-error').classList.remove('hidden');
+}
+
+// =====================================================================
+// ADMIN DASHBOARD
+// =====================================================================
+function populateAdminFilters() {
+  const munSel = document.getElementById('filter-municipio');
+  munSel.innerHTML = '<option value="">Todos los municipios</option>';
+  Object.keys(MUNICIPIOS_CAMPUS).forEach(m => {
+    const opt = document.createElement('option'); opt.value = m; opt.textContent = m; munSel.appendChild(opt);
+  });
+  document.getElementById('filter-municipio').addEventListener('change', () => {
+    const mun = document.getElementById('filter-municipio').value;
+    const campusSel = document.getElementById('filter-campus');
+    campusSel.innerHTML = '<option value="">Todos los planteles</option>';
+    if (mun) {
+      (MUNICIPIOS_CAMPUS[mun] || []).forEach(c => {
+        const opt = document.createElement('option'); opt.value = c; opt.textContent = c; campusSel.appendChild(opt);
+      });
+    }
+    applyFilters();
+  });
+}
+
+function renderAdminStats() {
+  const reqs = getRequests();
+  const total = reqs.length;
+  const pending = reqs.filter(r => r.status === 'Pendiente').length;
+  const review = reqs.filter(r => r.status === 'En revisión').length;
+  const done = reqs.filter(r => r.status === 'Diagnóstico listo' || r.status === 'Aceptada').length;
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="stat-card blue"><div class="stat-icon">📊</div><div class="stat-info"><div class="stat-value">${total}</div><div class="stat-label">Total solicitudes</div></div></div>
+    <div class="stat-card gold"><div class="stat-icon">⏳</div><div class="stat-info"><div class="stat-value">${pending}</div><div class="stat-label">Pendientes</div></div></div>
+    <div class="stat-card amber"><div class="stat-icon">🔍</div><div class="stat-info"><div class="stat-value">${review}</div><div class="stat-label">En revisión</div></div></div>
+    <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-info"><div class="stat-value">${done}</div><div class="stat-label">Completadas</div></div></div>
+  `;
+}
+
+function getFilteredRequests() {
+  let reqs = getRequests();
+  const mun = document.getElementById('filter-municipio').value;
+  const campus = document.getElementById('filter-campus').value;
+  const status = document.getElementById('filter-status').value;
+  const from = document.getElementById('filter-from').value;
+  const to = document.getElementById('filter-to').value;
+  if (mun) reqs = reqs.filter(r => r.municipality === mun);
+  if (campus) reqs = reqs.filter(r => r.campus === campus);
+  if (status) reqs = reqs.filter(r => r.status === status);
+  if (from) reqs = reqs.filter(r => r.createdAt >= from);
+  if (to) reqs = reqs.filter(r => r.createdAt <= to + 'T23:59:59');
+  return reqs.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt));
+}
+
+function applyFilters() { renderAdminRequests(); }
+
+function clearFilters() {
+  document.getElementById('filter-municipio').value = '';
+  document.getElementById('filter-campus').innerHTML = '<option value="">Todos</option>';
+  document.getElementById('filter-status').value = '';
+  document.getElementById('filter-from').value = '';
+  document.getElementById('filter-to').value = '';
+  renderAdminRequests();
+}
+
+function renderAdminRequests() {
+  const reqs = getFilteredRequests();
+  const tbody = document.getElementById('admin-requests-tbody');
+  const count = document.getElementById('admin-req-count');
+  count.textContent = reqs.length + ' resultado' + (reqs.length !== 1 ? 's' : '');
+
+  if (reqs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🔍</div><h3>Sin resultados</h3><p>No hay solicitudes que coincidan con los filtros seleccionados.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = reqs.map(r => `
+    <tr>
+      <td><span style="font-weight:700;color:var(--blue);font-size:0.8rem;">${r.folio}</span></td>
+      <td><span style="font-weight:600;">${r.userName}</span></td>
+      <td>${r.municipality}</td>
+      <td style="max-width:160px;" class="truncate" title="${r.campus}">${r.campus}</td>
+      <td>${r.tipoEquipo}</td>
+      <td>${formatDate(r.createdAt)}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="openAdminDetail('${r.id}')">🔧 Gestionar</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openAdminDetail(id) {
+  const r = getRequests().find(r => r.id === id);
+  if (!r) return;
+  currentAdminRequest = r;
+
+  const yaAceptada = r.status === 'Aceptada';
+
+  const body = document.getElementById('modal-admin-detail-body');
+  body.innerHTML = `
+    <span class="folio-badge">${r.folio}</span>
+
+    <!-- Firma del solicitante (si existe) -->
+    ${r.firmaDataURL ? `
+    <div class="detail-section">
+      <div class="detail-section-title">✍️ Firma del solicitante</div>
+      <div style="border:1px solid var(--gray-200);border-radius:8px;padding:6px;background:#f8faff;display:inline-block;">
+        <img src="${r.firmaDataURL}" style="max-width:320px;height:80px;object-fit:contain;display:block;" alt="Firma solicitante">
+      </div>
+    </div>` : ''}
+
+    <div class="detail-section">
+      <div class="detail-section-title">Información del Solicitante</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Solicitante</div><div class="detail-value">${r.userName}</div></div>
+        <div class="detail-item"><div class="detail-label">Centro de trabajo</div><div class="detail-value">${r.campus}</div></div>
+        <div class="detail-item"><div class="detail-label">Municipio</div><div class="detail-value">${r.municipality}</div></div>
+        <div class="detail-item"><div class="detail-label">Lugar y fecha</div><div class="detail-value">${r.lugar || '—'} — ${r.fecha || formatDate(r.createdAt)}</div></div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Datos del Equipo</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Categoría</div><div class="detail-value">${r.categoriaEquipo || '—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Tipo de equipo</div><div class="detail-value">${r.tipoEquipo}</div></div>
+        <div class="detail-item"><div class="detail-label">Marca</div><div class="detail-value">${r.marca}</div></div>
+        <div class="detail-item"><div class="detail-label">Modelo</div><div class="detail-value">${r.modelo}</div></div>
+        <div class="detail-item"><div class="detail-label">Núm. de serie</div><div class="detail-value">${r.numeroSerie || '—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Núm. de inventario</div><div class="detail-value">${r.numeroInventario || '—'}</div></div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Descripción del problema</div>
+      <div style="background:var(--gray-50);border-radius:var(--radius);padding:0.85rem;font-size:0.9rem;color:var(--gray-700);line-height:1.6;border-left:4px solid var(--gold);">${r.descripcionProblema}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">⚙️ Gestión administrativa</div>
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+
+        <div class="form-group">
+          <label class="form-label" for="admin-status-sel">Estado de la solicitud</label>
+          <select class="form-control" id="admin-status-sel" ${yaAceptada ? 'disabled' : ''}>
+            <option value="Pendiente"        ${r.status==='Pendiente'       ?'selected':''}>⏳ Pendiente</option>
+            <option value="En revisión"      ${r.status==='En revisión'     ?'selected':''}>🔍 En revisión</option>
+            <option value="Diagnóstico listo"${r.status==='Diagnóstico listo'?'selected':''}>📋 Diagnóstico listo</option>
+            <option value="Aceptada"         ${r.status==='Aceptada'        ?'selected':''}>✅ Aceptada</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="admin-diag-txt">Diagnóstico del especialista <span class="required">*</span></label>
+          <textarea class="form-control" id="admin-diag-txt" rows="5"
+            placeholder="Escribe aquí el diagnóstico técnico detallado del equipo..."
+            ${yaAceptada ? 'disabled' : ''}>${r.diagnostico}</textarea>
+        </div>
+
+        <!-- Firma del administrador -->
+        <div class="form-group">
+          <label class="form-label">
+            Firma del especialista / administrador
+            ${yaAceptada ? '' : '<span class="required">*</span>'}
+          </label>
+          ${yaAceptada && r.firmaAdminDataURL ? `
+            <div style="border:2px solid #22c55e;border-radius:10px;padding:6px;background:#f0fdf4;">
+              <img src="${r.firmaAdminDataURL}" style="max-width:400px;height:100px;object-fit:contain;display:block;" alt="Firma especialista">
+              <p style="margin:4px 0 0;font-size:.75rem;color:#16a34a;text-align:center;">✅ Solicitud aceptada y firmada</p>
+            </div>
+          ` : `
+            <div style="border:2px dashed var(--primary);border-radius:10px;padding:6px;background:#f8faff;position:relative;">
+              <canvas id="admin-firma-canvas" width="640" height="110"
+                style="display:block;width:100%;height:110px;cursor:crosshair;touch-action:none;border-radius:6px;background:#fff;">
+              </canvas>
+              <button type="button" onclick="clearAdminFirma()"
+                style="position:absolute;top:8px;right:8px;background:var(--gray-200);border:none;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:.8rem;color:var(--gray-600);">
+                🗑️ Limpiar
+              </button>
+              <p style="margin:4px 0 0;font-size:.75rem;color:var(--gray-500);text-align:center;">
+                Firma con el mouse o dedo — requerida para <strong>Aceptar</strong>
+              </p>
+            </div>
+          `}
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  const footer = document.getElementById('modal-admin-detail-footer');
+  if (yaAceptada) {
+    footer.innerHTML = `
+      <button class="btn btn-ghost" onclick="closeModal('modal-admin-detail')">Cerrar</button>
+      <button class="btn btn-gold" onclick="printDiagnosis('${r.id}')">🖨️ Imprimir diagnóstico</button>
+    `;
+  } else {
+    footer.innerHTML = `
+      <button class="btn btn-ghost" onclick="closeModal('modal-admin-detail')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAdminChanges('${r.id}')">💾 Guardar borrador</button>
+      <button class="btn btn-gold" onclick="printDiagnosis('${r.id}')">🖨️ Imprimir</button>
+      <button class="btn" style="background:#22c55e;color:#fff;font-weight:600;" onclick="aceptarSolicitud('${r.id}')">✅ Aceptar y firmar</button>
+    `;
+  }
+
+  openModal('modal-admin-detail');
+
+  // Inicializar canvas de firma del admin (solo si no está aceptada)
+  if (!yaAceptada) {
+    setTimeout(() => initAdminFirmaCanvas(), 50);
+  }
+}
+
+// ── Canvas firma admin ────────────────────────────────────────────────
+let adminFirmaIsDrawing = false;
+let adminFirmaHasData   = false;
+
+function initAdminFirmaCanvas() {
+  const canvas = document.getElementById('admin-firma-canvas');
+  if (!canvas) return;
+  adminFirmaHasData = false;
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#003865';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - rect.left) * scaleX, y: (src.clientY - rect.top) * scaleY };
+  }
+  function start(e) { e.preventDefault(); adminFirmaIsDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+  function draw(e)  { e.preventDefault(); if (!adminFirmaIsDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); adminFirmaHasData = true; }
+  function stop()   { adminFirmaIsDrawing = false; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup',   stop);
+  canvas.addEventListener('mouseleave',stop);
+  canvas.addEventListener('touchstart',start, {passive:false});
+  canvas.addEventListener('touchmove', draw,  {passive:false});
+  canvas.addEventListener('touchend',  stop);
+}
+
+function clearAdminFirma() {
+  const canvas = document.getElementById('admin-firma-canvas');
+  if (!canvas) return;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  adminFirmaHasData = false;
+}
+
+function getAdminFirmaDataURL() {
+  const canvas = document.getElementById('admin-firma-canvas');
+  return canvas ? canvas.toDataURL('image/png') : '';
+}
+
+// ── Guardar borrador (sin firma obligatoria) ─────────────────────────
+function saveAdminChanges(id) {
+  const reqs = getRequests();
+  const idx  = reqs.findIndex(r => r.id === id);
+  if (idx === -1) return;
+  reqs[idx].status      = document.getElementById('admin-status-sel').value;
+  reqs[idx].diagnostico = document.getElementById('admin-diag-txt').value.trim();
+  reqs[idx].updatedAt   = new Date().toISOString();
+  // Si hay firma dibujada, guardarla como borrador
+  if (adminFirmaHasData) reqs[idx].firmaAdminDataURL = getAdminFirmaDataURL();
+  saveRequests(reqs);
+  closeModal('modal-admin-detail');
+  renderAdminStats();
+  renderAdminRequests();
+  showToast('success', `💾 Solicitud ${reqs[idx].folio} guardada como borrador.`);
+}
+
+// ── Aceptar y firmar (firma obligatoria + estado = Aceptada) ─────────
+function aceptarSolicitud(id) {
+  const diag = document.getElementById('admin-diag-txt').value.trim();
+  if (!diag) { showToast('error','⚠️ Escribe el diagnóstico antes de aceptar.'); return; }
+  if (!adminFirmaHasData) { showToast('error','✍️ Debes firmar antes de aceptar la solicitud.'); return; }
+
+  const reqs = getRequests();
+  const idx  = reqs.findIndex(r => r.id === id);
+  if (idx === -1) return;
+
+  reqs[idx].status            = 'Aceptada';
+  reqs[idx].diagnostico       = diag;
+  reqs[idx].firmaAdminDataURL = getAdminFirmaDataURL();
+  reqs[idx].fechaAceptacion   = new Date().toISOString();
+  reqs[idx].updatedAt         = new Date().toISOString();
+  saveRequests(reqs);
+  closeModal('modal-admin-detail');
+  renderAdminStats();
+  renderAdminRequests();
+
+  // ── Mostrar confirmación con opción de imprimir ───────────────────
+  showPrintConfirm(reqs[idx].folio, id);
+}
+
+function showPrintConfirm(folio, id) {
+  // Eliminar cualquier confirmación previa
+  document.getElementById('print-confirm-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'print-confirm-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;
+    display:flex;align-items:center;justify-content:center;animation:fadeIn .2s;
+  `;
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:16px;padding:2rem;max-width:420px;width:90%;
+                box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;">
+      <div style="font-size:3rem;margin-bottom:.5rem;">✅</div>
+      <h3 style="color:#003865;margin:0 0 .5rem;font-size:1.3rem;">¡Solicitud aceptada!</h3>
+      <p style="color:#555;font-size:.95rem;margin:0 0 1.5rem;">
+        <strong>${folio}</strong> ha sido aceptada y firmada.<br>
+        ¿Deseas imprimir el diagnóstico ahora?
+      </p>
+      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+        <button onclick="document.getElementById('print-confirm-overlay').remove();"
+          style="padding:.6rem 1.4rem;border:2px solid #d1d5db;border-radius:8px;
+                 background:#fff;color:#555;cursor:pointer;font-size:.9rem;font-weight:500;">
+          Ahora no
+        </button>
+        <button onclick="document.getElementById('print-confirm-overlay').remove(); printDiagnosis('${id}');"
+          style="padding:.6rem 1.6rem;border:none;border-radius:8px;
+                 background:#F5A800;color:#003865;cursor:pointer;font-size:.9rem;font-weight:700;
+                 box-shadow:0 2px 8px rgba(245,168,0,.4);">
+          🖨️ Imprimir diagnóstico
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+// =====================================================================
+// PRINT
+// =====================================================================
+function printDiagnosis(id) {
+  const r = getRequests().find(r => r.id === id);
+  if (!r || !currentUser) return;
+
+  const esAdmin = currentUser.role === 'admin';
+  // El usuario solo puede imprimir sus propias solicitudes ya aceptadas
+  if (!esAdmin && (r.userId !== currentUser.id || r.status !== 'Aceptada')) {
+    showToast('error', '⚠️ Solo puedes imprimir diagnósticos aceptados de tus solicitudes.');
+    return;
+  }
+
+  closeModal('modal-admin-detail');
+  closeModal('modal-user-detail');
+  previousView = esAdmin ? 'admin' : 'user';
+
+  const lugarFecha = r.lugar && r.fecha
+    ? `${r.lugar} — ${new Date(r.fecha + 'T12:00:00').toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'})}`
+    : `Colima, Colima — ${new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'})}`;
+
+  const fields = [
+    { label: 'Nombre del solicitante', value: r.userName },
+    { label: 'Centro de trabajo',      value: r.campus },
+    { label: 'Municipio',              value: r.municipality },
+    { label: 'Folio',                  value: r.folio },
+    { label: 'Categoría',              value: r.categoriaEquipo || '—' },
+    { label: 'Tipo de equipo',         value: r.tipoEquipo },
+    { label: 'Marca',                  value: r.marca },
+    { label: 'Modelo',                 value: r.modelo },
+    { label: 'Número de serie',        value: r.numeroSerie || '—' },
+    { label: 'Número de inventario',   value: r.numeroInventario || '—' },
+    { label: 'Lugar y fecha',          value: lugarFecha },
+  ];
+
+  document.getElementById('print-fields').innerHTML = fields.map(f => `
+    <div class="print-field">
+      <div class="print-field-label">${f.label}</div>
+      <div class="print-field-value">${f.value}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('print-diagnostico-box').textContent = r.diagnostico || '(Sin diagnóstico registrado aún)';
+
+  // ── Firmas en la hoja de impresión ──────────────────────────────
+  const firmasDiv = document.getElementById('print-firmas');
+  if (firmasDiv) {
+    const estadoBadge = r.status === 'Aceptada'
+      ? `<div style="text-align:center;margin-bottom:1.2rem;">
+           <span style="display:inline-block;background:#22c55e;color:#fff;padding:4px 18px;border-radius:20px;font-weight:700;font-size:.9rem;letter-spacing:.5px;">
+             ✅ SOLICITUD ACEPTADA
+           </span>
+           <div style="font-size:.78rem;color:#555;margin-top:4px;">
+             ${r.fechaAceptacion ? new Date(r.fechaAceptacion).toLocaleString('es-MX') : ''}
+           </div>
+         </div>`
+      : '';
+
+    const firmaSolicitante = r.firmaDataURL
+      ? `<img src="${r.firmaDataURL}" style="height:72px;max-width:260px;object-fit:contain;display:block;margin:0 auto;" alt="Firma solicitante">`
+      : `<div style="border-top:1px solid #333;width:220px;margin:0 auto;padding-top:4px;"></div>`;
+
+    const firmaEspecialista = r.firmaAdminDataURL
+      ? `<img src="${r.firmaAdminDataURL}" style="height:72px;max-width:260px;object-fit:contain;display:block;margin:0 auto;" alt="Firma especialista">`
+      : `<div style="border-top:1px solid #333;width:220px;margin:0 auto;padding-top:4px;"></div>`;
+
+    firmasDiv.innerHTML = `
+      ${estadoBadge}
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-top:2rem;">
+        <div style="text-align:center;">
+          ${firmaSolicitante}
+          <div style="font-size:.78rem;margin-top:6px;color:#333;">
+            Nombre y firma del solicitante<br>que entrega el equipo
+          </div>
+        </div>
+        <div style="text-align:center;">
+          ${firmaEspecialista}
+          <div style="font-size:.78rem;margin-top:6px;color:#333;">
+            <strong>Ing. Juan Francisco Vaca Gutiérrez</strong><br>
+            Nombre y firma del Especialista que revisó
+          </div>
+        </div>
+        <div style="text-align:center;">
+          <div style="border:1px dashed #aaa;min-height:72px;width:160px;margin:0 auto;display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:.7rem;color:#aaa;">SELLO</span>
+          </div>
+          <div style="font-size:.78rem;margin-top:6px;color:#333;">
+            Vo. bo. del Director General<br>Sello de la Dirección
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  showView('view-print');
+}
+
+function closePrintView() {
+  if (previousView === 'admin') showAdminDashboard();
+  else showUserDashboard();
+}
+
+// =====================================================================
+// MODAL HELPERS
+// =====================================================================
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.body.style.overflow = ''; }
+function closeModalOnOverlay(e, id) { if (e.target.id === id) closeModal(id); }
+
+// =====================================================================
+// STATUS HELPERS
+// =====================================================================
+function statusBadge(status) {
+  if (status === 'Pendiente')        return `<span class="badge badge-pending">⏳ Pendiente</span>`;
+  if (status === 'En revisión')      return `<span class="badge badge-review">🔍 En revisión</span>`;
+  if (status === 'Diagnóstico listo')return `<span class="badge badge-done">📋 Diagnóstico listo</span>`;
+  if (status === 'Aceptada')         return `<span class="badge badge-accepted">✅ Aceptada</span>`;
+  return `<span class="badge">${status}</span>`;
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+// =====================================================================
+// TOAST
+// =====================================================================
+function showToast(type, message, duration = 4000) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+  toast.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 300); }, duration);
+}
+</script>
+</body>
+</html>
